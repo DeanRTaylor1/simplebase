@@ -3,6 +3,7 @@ import { useState } from "react";
 import logo from "../assets/images/logo-universal.webp";
 import "../App.css";
 import { Hello } from "wailsjs/go/main/App";
+import { Link, useNavigate } from "react-router-dom";
 
 function Home() {
   const [resultText, setResultText] = useState(
@@ -15,6 +16,8 @@ function Home() {
   function greet() {
     Hello("dean").then(updateResultText);
   }
+
+  const navigate = useNavigate();
 
   return (
     <>
@@ -33,9 +36,10 @@ function Home() {
         id="input"
         className="w-full flex justify-center items-center gap-12"
       >
-        <Button className="" onClick={greet}>
-          Get Started
+        <Button className="" onClick={() => navigate("/connect")}>
+          <Link to="/connect">Get Started</Link>
         </Button>
+
         <Button className="bg-blue-400 hover:bg-blue-600" onClick={greet}>
           Documentation
         </Button>
