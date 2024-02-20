@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"changeme/db"
@@ -18,6 +18,10 @@ type DBConfig struct {
 	SSLMode  string `json:"sslmode"`
 }
 
+type Tables struct {
+	TableNames []string `json:"table_names"`
+}
+
 // App struct
 type App struct {
 	ctx  context.Context
@@ -31,11 +35,11 @@ func NewApp() *App {
 
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
-func (a *App) startup(ctx context.Context) {
+func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
-func (a *App) shutdown(ctx context.Context) {
+func (a *App) Shutdown(ctx context.Context) {
 	if a.pool != nil {
 		fmt.Println("Closing database connection pool...")
 		a.pool.Close()
@@ -43,16 +47,8 @@ func (a *App) shutdown(ctx context.Context) {
 	}
 }
 
-// Greet returns a greeting for the given name
-func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, It's show time!", name)
-}
-
-func (a *App) Hello(name string) string {
-	return fmt.Sprintf("Hello World! from %s", name)
-}
-
 func (a *App) ConnectToDB(cfg DBConfig) (string, error) {
+	fmt.Println(cfg)
 	port, err := strconv.Atoi(cfg.Port)
 	if err != nil {
 		return "", fmt.Errorf("unable to connect to the database: %v", err)
@@ -60,6 +56,7 @@ func (a *App) ConnectToDB(cfg DBConfig) (string, error) {
 	connString := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
 		cfg.Host, port, cfg.User, cfg.Password, cfg.DBName, cfg.SSLMode)
 
+	fmt.Println(connString)
 	pool, err := db.NewDbPool(context.Background(), connString)
 	if err != nil {
 		return "", fmt.Errorf("unable to connect to the database: %v", err)
@@ -67,4 +64,14 @@ func (a *App) ConnectToDB(cfg DBConfig) (string, error) {
 	a.pool = pool
 
 	return ("Successfully connected to the database."), nil
+}
+
+func (a *App) ListTables() (Tables, error) {
+
+	tables, err := db.ListTables(a.ctx, a.pool)
+	if err != nil {
+		return Tables{}, fmt.Errorf("unable to connect to the database: %v", err)
+	}
+
+	return Tables{TableNames: tables}, nil
 }

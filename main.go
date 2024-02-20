@@ -1,6 +1,7 @@
 package main
 
 import (
+	"changeme/core"
 	"embed"
 
 	"github.com/wailsapp/wails/v2"
@@ -13,9 +14,8 @@ var assets embed.FS
 
 func main() {
 
-	app := NewApp()
+	app := core.NewApp()
 
-	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "simplebase",
 		Width:  1024,
@@ -24,8 +24,8 @@ func main() {
 			Assets: assets,
 		},
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
-		OnStartup:        app.startup,
-		OnShutdown:       app.shutdown,
+		OnStartup:        app.Startup,
+		OnShutdown:       app.Shutdown,
 		Bind: []interface{}{
 			app,
 		},

@@ -17,8 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { main } from "wailsjs/go/models";
-import { ConnectToDB } from "wailsjs/go/main/App";
+import { core } from "wailsjs/go/models";
+import { ConnectToDB, ListTables } from "wailsjs/go/core/App";
 
 const dbConfigSchema = z.object({
   host: z.string().min(1, "Host is required."),
@@ -36,21 +36,26 @@ function Connect() {
   const form = useForm<z.infer<typeof dbConfigSchema>>({
     resolver: zodResolver(dbConfigSchema),
     defaultValues: {
-      host: "",
-      port: "",
-      user: "",
+      host: "localhost",
+      port: "5432",
+      user: "root",
       password: "",
-      dbname: "",
+      dbname: "dev_db",
       sslmode: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof dbConfigSchema>) {
+  async function onSubmit(values: z.infer<typeof dbConfigSchema>) {
     // Handle submission with validated and typed values
     console.log(values);
-    const config = main.DBConfig.createFrom(values);
-    ConnectToDB(config);
-    console.log(config);
+    const config = core.DBConfig.createFrom(values);
+    try {
+      await ConnectToDB(config);
+      const response = await ListTables();
+      console.log({ tableNames: response.table_names });
+    } catch (error) {
+      console.error({ error });
+    }
   }
 
   return (

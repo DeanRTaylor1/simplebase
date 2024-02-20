@@ -1,4 +1,4 @@
-export namespace main {
+export namespace core {
 	
 	export class DBConfig {
 	    host: string;
@@ -20,6 +20,18 @@ export namespace main {
 	        this.password = source["password"];
 	        this.dbname = source["dbname"];
 	        this.sslmode = source["sslmode"];
+	    }
+	}
+	export class Tables {
+	    table_names: string[];
+	
+	    static createFrom(source: any = {}) {
+	        return new Tables(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.table_names = source["table_names"];
 	    }
 	}
 
