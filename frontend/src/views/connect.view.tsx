@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/select";
 import { core } from "wailsjs/go/models";
 import { ConnectToDB, ListTables } from "wailsjs/go/core/App";
+import { useNavigate } from "react-router-dom";
+import { useDBContext } from "@/context/DBContext";
 
 const dbConfigSchema = z.object({
   host: z.string().min(1, "Host is required."),
@@ -33,6 +35,8 @@ const dbConfigSchema = z.object({
 });
 
 function Connect() {
+  const navigate = useNavigate();
+  const { updateTables, updateCurrentDB } = useDBContext();
   const form = useForm<z.infer<typeof dbConfigSchema>>({
     resolver: zodResolver(dbConfigSchema),
     defaultValues: {
@@ -53,6 +57,9 @@ function Connect() {
       await ConnectToDB(config);
       const response = await ListTables();
       console.log({ tableNames: response.table_names });
+      updateCurrentDB(values.dbname);
+      updateTables(response.table_names);
+      navigate(`/${values.dbname}`);
     } catch (error) {
       console.error({ error });
     }
