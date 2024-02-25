@@ -1,11 +1,11 @@
 package core
 
 import (
-	"changeme/db"
 	"context"
 	"fmt"
 	"strconv"
 
+	"github.com/deanrtaylor1/simplebase/db"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -24,6 +24,10 @@ type Tables struct {
 
 type TableData struct {
 	TableData [][]db.ColumnData `json:"table_data"`
+}
+
+type ConnTestResponse struct {
+	Status bool `json:"status"`
 }
 
 // App struct
@@ -52,7 +56,6 @@ func (a *App) Shutdown(ctx context.Context) {
 }
 
 func (a *App) ConnectToDB(cfg DBConfig) (string, error) {
-	fmt.Println(cfg)
 	port, err := strconv.Atoi(cfg.Port)
 	if err != nil {
 		return "", fmt.Errorf("unable to connect to the database: %v", err)
@@ -60,7 +63,6 @@ func (a *App) ConnectToDB(cfg DBConfig) (string, error) {
 	connString := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
 		cfg.Host, port, cfg.User, cfg.Password, cfg.DBName, cfg.SSLMode)
 
-	fmt.Println(connString)
 	pool, err := db.NewDbPool(context.Background(), connString)
 	if err != nil {
 		return "", fmt.Errorf("unable to connect to the database: %v", err)
@@ -90,23 +92,6 @@ func (a *App) FetchSchema(tableName string) ([]db.TableColumn, error) {
 	return cols, nil
 }
 
-// // Assuming db.TableData is similar but not identical to TableData
-// func convertDBTableDataToAppTableData(dbData db.TableData) TableData {
-// 	var appData TableData
-// 	for _, dbRow := range dbData {
-// 		var appRow []ColumnData
-// 		for _, dbCol := range dbRow {
-// 			appCol := ColumnData{
-// 				ColumnName: dbCol.ColumnName,
-// 				Value:      dbCol.Value,
-// 			}
-// 			appRow = append(appRow, appCol)
-// 		}
-// 		appData.TableData = append(appData.TableData, appRow)
-// 	}
-// 	return appData
-// }
-
 func (a *App) DefaultFetchTableData(tableName string, offset uint64, limit uint64) (TableData, error) {
 	dbData, err := db.DefaultFetchTableData(a.ctx, a.pool, tableName, offset, limit)
 	if err != nil {
@@ -117,6 +102,17 @@ func (a *App) DefaultFetchTableData(tableName string, offset uint64, limit uint6
 	return TableData{TableData: dbData}, nil
 }
 
-func (a *App) ExportColumnDataType() db.ColumnData {
-	return db.ColumnData{}
+func (a *App) TestConnection(cfg DBConfig) ConnTestResponse {
+
+	port, err := strconv.Atoi(cfg.Port)
+	if err != nil {
+		return ConnTestResponse{Status: false}
+	}
+
+	connString := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
+		cfg.Host, port, cfg.User, cfg.Password, cfg.DBName, cfg.SSLMode)
+
+	status := db.TestConnection(a.ctx, connString)
+
+	return ConnTestResponse{Status: status}
 }

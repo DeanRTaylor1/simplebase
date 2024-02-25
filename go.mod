@@ -1,4 +1,4 @@
-module changeme
+module github.com/deanrtaylor1/simplebase
 
 go 1.21
 

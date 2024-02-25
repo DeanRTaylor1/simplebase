@@ -1,13 +1,33 @@
 package db
 
 import (
-	"changeme/internal"
 	"context"
 	"errors"
 	"fmt"
 
+	"github.com/deanrtaylor1/simplebase/internal"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
+
+func TestConnection(ctx context.Context, connString string) bool {
+	conn, err := pgx.Connect(ctx, connString)
+	if err != nil {
+		fmt.Println("Failed to connect to database:", err)
+		return false
+	}
+
+	defer conn.Close(ctx)
+
+	var testQueryResponse int
+	err = conn.QueryRow(ctx, internal.Testquery).Scan(&testQueryResponse)
+	if err != nil {
+		fmt.Println("Test query failed:", err)
+		return false
+	}
+
+	return true
+}
 
 func NewDbPool(ctx context.Context, connString string) (*pgxpool.Pool, error) {
 	pool, err := pgxpool.New(ctx, connString)
