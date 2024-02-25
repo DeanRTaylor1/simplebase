@@ -5,7 +5,7 @@ export default function WithSidebar() {
   return (
     <div className="flex h-full w-full">
       <Sidebar />
-      <div className="flex-grow p-4">
+      <div className="flex-grow p-0">
         <Outlet />
       </div>
     </div>

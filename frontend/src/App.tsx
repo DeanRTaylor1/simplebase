@@ -5,6 +5,7 @@ import { HashRouter, Routes, Route } from "react-router-dom";
 import Connect from "./views/connect.view";
 import MenuBar from "./components/menu/menu";
 import WithSidebar from "./layouts/with-sidebar";
+import DemoPage from "./components/table/table";
 
 const App: React.FC<PropsWithChildren> = ({ children }) => {
   return (
@@ -18,7 +19,7 @@ const App: React.FC<PropsWithChildren> = ({ children }) => {
             <Route path="/connect" element={<Connect />} />
             <Route element={<WithSidebar />}>
               <Route path="/:db-name" element={<Connect />} />
-              <Route path="/:db-name/:table-name" element={<Connect />} />
+              <Route path="/:db-name/:table-name" element={<DemoPage />} />
             </Route>
           </Routes>
         </div>

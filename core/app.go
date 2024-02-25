@@ -22,6 +22,10 @@ type Tables struct {
 	TableNames []string `json:"table_names"`
 }
 
+type TableData struct {
+	TableData [][]db.ColumnData `json:"table_data"`
+}
+
 // App struct
 type App struct {
 	ctx  context.Context
@@ -74,4 +78,45 @@ func (a *App) ListTables() (Tables, error) {
 	}
 
 	return Tables{TableNames: tables}, nil
+}
+
+func (a *App) FetchSchema(tableName string) ([]db.TableColumn, error) {
+
+	cols, err := db.FetchTableSchema(a.ctx, a.pool, tableName)
+	if err != nil {
+		return []db.TableColumn{}, fmt.Errorf("unable to connect to the database: %v", err)
+	}
+
+	return cols, nil
+}
+
+// // Assuming db.TableData is similar but not identical to TableData
+// func convertDBTableDataToAppTableData(dbData db.TableData) TableData {
+// 	var appData TableData
+// 	for _, dbRow := range dbData {
+// 		var appRow []ColumnData
+// 		for _, dbCol := range dbRow {
+// 			appCol := ColumnData{
+// 				ColumnName: dbCol.ColumnName,
+// 				Value:      dbCol.Value,
+// 			}
+// 			appRow = append(appRow, appCol)
+// 		}
+// 		appData.TableData = append(appData.TableData, appRow)
+// 	}
+// 	return appData
+// }
+
+func (a *App) DefaultFetchTableData(tableName string, offset uint64, limit uint64) (TableData, error) {
+	dbData, err := db.DefaultFetchTableData(a.ctx, a.pool, tableName, offset, limit)
+	if err != nil {
+		fmt.Println("error")
+		return TableData{}, fmt.Errorf("unable to connect to the database: %v", err)
+	}
+
+	return TableData{TableData: dbData}, nil
+}
+
+func (a *App) ExportColumnDataType() db.ColumnData {
+	return db.ColumnData{}
 }

@@ -35,7 +35,6 @@ func ListTables(ctx context.Context, pool *pgxpool.Pool) ([]string, error) {
 	}
 	defer rows.Close()
 
-	fmt.Println("Tables:")
 	tableNames := []string{}
 	for rows.Next() {
 		var tableName string
@@ -43,7 +42,6 @@ func ListTables(ctx context.Context, pool *pgxpool.Pool) ([]string, error) {
 			return nil, err
 		}
 		tableNames = append(tableNames, tableName)
-		fmt.Println(tableName)
 	}
 
 	return tableNames, nil

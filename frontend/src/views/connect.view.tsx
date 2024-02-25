@@ -55,8 +55,8 @@ function Connect() {
     const config = core.DBConfig.createFrom(values);
     try {
       await ConnectToDB(config);
+
       const response = await ListTables();
-      console.log({ tableNames: response.table_names });
       updateCurrentDB(values.dbname);
       updateTables(response.table_names);
       navigate(`/${values.dbname}`);

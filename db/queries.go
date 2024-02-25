@@ -14,6 +14,8 @@ type TableSizeInfo struct {
 	Comment   string
 }
 
+type TableRowData []map[string]interface{}
+
 func GetTableSizeInfo(ctx context.Context, pool *pgxpool.Pool, schemaName, tableName string) ([]TableSizeInfo, error) {
 	query := fmt.Sprintf(`
 SELECT
@@ -99,4 +101,45 @@ ORDER BY ordinal_position;
 	}
 
 	return columns, nil
+}
+
+type ColumnData struct {
+	ColumnName string      `json:"column_name"`
+	Value      interface{} `json:"value"`
+}
+
+type TableData [][]ColumnData
+
+func DefaultFetchTableData(ctx context.Context, pool *pgxpool.Pool, tableName string, offset uint64, limit uint64) ([][]ColumnData, error) {
+	query := fmt.Sprintf(`SELECT * FROM %s OFFSET %d LIMIT %d`, tableName, offset, limit)
+	rows, err := pool.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var results TableData
+	columnDescriptions := rows.FieldDescriptions()
+
+	for rows.Next() {
+		values, err := rows.Values()
+		if err != nil {
+			return nil, err
+		}
+		var rowData []ColumnData
+		for i, value := range values {
+			colData := ColumnData{
+				ColumnName: string(columnDescriptions[i].Name),
+				Value:      value,
+			}
+			rowData = append(rowData, colData)
+		}
+		results = append(results, rowData)
+	}
+
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	return results, nil
 }
