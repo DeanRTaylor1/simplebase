@@ -1,0 +1,27 @@
+name: Go
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Build Wails Application
+        uses: dAppServer/wails-build-action@v2.2
+        with:
+          build-name: "wailsApp"
+          build-platform: "linux/amd64"
+          go-version: "1.21"
+          node-version: "16"
+          package: false
+
+      - name: Run Go tests
+        run: go test -v ./...
