@@ -6,26 +6,27 @@ import (
 	"fmt"
 
 	"github.com/deanrtaylor1/simplebase/internal"
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func TestConnection(ctx context.Context, connString string) bool {
-	conn, err := pgx.Connect(ctx, connString)
+func TestConnection(ctx context.Context, connString string, connector DBConnector) (bool, DBQuerier) {
+	conn, err := connector.Connect(ctx, connString)
 	if err != nil {
 		fmt.Println("Failed to connect to database:", err)
-		return false
+		return false, nil
 	}
 
-	defer conn.Close(ctx)
+	return true, conn
+}
 
+func RunTestQuery(ctx context.Context, conn DBQuerier) bool {
+	defer conn.Close(ctx)
 	var testQueryResponse int
-	err = conn.QueryRow(ctx, internal.Testquery).Scan(&testQueryResponse)
+	err := conn.QueryRow(ctx, internal.Testquery).Scan(&testQueryResponse)
 	if err != nil {
 		fmt.Println("Test query failed:", err)
 		return false
 	}
-
 	return true
 }
 
