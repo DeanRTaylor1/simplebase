@@ -1,5 +1,17 @@
 export namespace core {
 	
+	export class ConnTestResponse {
+	    status: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new ConnTestResponse(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.status = source["status"];
+	    }
+	}
 	export class DBConfig {
 	    host: string;
 	    port: string;

@@ -21,3 +21,7 @@ export function FetchSchema(arg1) {
 export function ListTables() {
   return window['go']['core']['App']['ListTables']();
 }
+
+export function TestConnection(arg1) {
+  return window['go']['core']['App']['TestConnection'](arg1);
+}

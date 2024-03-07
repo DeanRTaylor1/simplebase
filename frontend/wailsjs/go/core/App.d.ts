@@ -12,3 +12,5 @@ export function ExportColumnDataType():Promise<db.ColumnData>;
 export function FetchSchema(arg1:string):Promise<Array<db.TableColumn>>;
 
 export function ListTables():Promise<core.Tables>;
+
+export function TestConnection(arg1:core.DBConfig):Promise<core.ConnTestResponse>;
